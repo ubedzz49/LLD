@@ -1,2 +1,2 @@
 # LLD
-My LLD codes
+Practical C++ implementations showcasing fundamental Low-Level Design concepts.
