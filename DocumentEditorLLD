@@ -1,0 +1,92 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Element {
+public:
+    virtual void render() = 0;
+    virtual ~Element() {}
+};
+
+class TextElement : public Element {
+    string text;
+public:
+    TextElement(const string& t) : text(t) {}
+    void render() override {
+        cout << "Rendering Text: " << text << "\n";
+    }
+};
+
+class ImageElement : public Element {
+    string link;
+public:
+    ImageElement(const string& l) : link(l) {}
+    void render() override {
+        cout << "Rendering Image from: " << link << "\n";
+    }
+};
+
+class RenderDocument {
+    vector<Element*> elements;
+public:
+    void addElement(Element* element) {
+        elements.push_back(element);
+    }
+    void renderAll() {
+        for (auto e : elements) {
+            e->render();
+        }
+    }
+    const vector<Element*>& getElements() const {
+        return elements;
+    }
+};
+
+class DB {
+public:
+    virtual void save(const RenderDocument* doc) = 0;
+    virtual ~DB() {}
+};
+
+class MongoDB : public DB {
+public:
+    void save(const RenderDocument* doc) override {
+        cout << "Saving to MongoDB...\n";
+    }
+};
+
+class FileDB : public DB {
+public:
+    void save(const RenderDocument* doc) override {
+        cout << "Saving to FileDB...\n";
+    }
+};
+
+class AddElement {
+public:
+    void add(RenderDocument* doc, Element* elem) {
+        doc->addElement(elem);
+    }
+};
+
+class SaveToDB {
+public:
+    void save(RenderDocument* doc, DB* db) {
+        db->save(doc);
+    }
+};
+
+int main() {
+    RenderDocument* doc = new RenderDocument();
+    AddElement adder;
+    adder.add(doc, new TextElement("Hello World"));
+    adder.add(doc, new ImageElement("image.png"));
+
+    doc->renderAll();
+
+    SaveToDB saver;
+    saver.save(doc, new MongoDB());
+    saver.save(doc, new FileDB());
+
+    delete doc;
+    return 0;
+}
