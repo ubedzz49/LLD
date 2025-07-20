@@ -26,11 +26,8 @@ public:
 };
 
 class RenderDocument {
-    vector<Element*> elements;
 public:
-    void addElement(Element* element) {
-        elements.push_back(element);
-    }
+    vector<Element*> elements;
     void renderAll() {
         for (auto e : elements) {
             e->render();
@@ -62,30 +59,37 @@ public:
 };
 
 class AddElement {
+    RenderDocument* doc;
 public:
-    void add(RenderDocument* doc, Element* elem) {
-        doc->addElement(elem);
+    AddElement(RenderDocument* d) : doc(d) {}
+    void add(Element* elem) {
+        doc->elements.push_back(elem);
     }
 };
 
 class SaveToDB {
+    RenderDocument* doc;
+    DB* db;
 public:
-    void save(RenderDocument* doc, DB* db) {
+    SaveToDB(RenderDocument* d, DB* b) : doc(d), db(b) {}
+    void save() {
         db->save(doc);
     }
 };
 
 int main() {
     RenderDocument* doc = new RenderDocument();
-    AddElement adder;
-    adder.add(doc, new TextElement("Hello World"));
-    adder.add(doc, new ImageElement("image.png"));
+    AddElement adder(doc);
+    adder.add(new TextElement("Hello World"));
+    adder.add(new ImageElement("image.png"));
 
     doc->renderAll();
 
-    SaveToDB saver;
-    saver.save(doc, new MongoDB());
-    saver.save(doc, new FileDB());
+    SaveToDB mongoSaver(doc, new MongoDB());
+    mongoSaver.save();
+
+    SaveToDB fileSaver(doc, new FileDB());
+    fileSaver.save();
 
     delete doc;
     return 0;
