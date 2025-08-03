@@ -1,0 +1,73 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+class Hero {
+public:
+    virtual void run() = 0;
+    virtual ~Hero() {}
+};
+
+class BasicHero : public Hero {
+public:
+    BasicHero() {}
+    void run() override {
+        cout << "Hero is running on track.\n";
+    }
+};
+
+class Decorator : public Hero {
+protected:
+    Hero* hero;
+public:
+    Decorator(Hero* h) : hero(h) {}
+    virtual Hero* removeDecorator() = 0;
+    virtual ~Decorator() {}
+};
+
+class SkateboardDecorator : public Decorator {
+public:
+    SkateboardDecorator(Hero* h) : Decorator(h) {}
+    void run() override {
+        hero->run();
+        cout << "Hero is riding a skateboard!\n";
+    }
+    Hero* removeDecorator() override {
+        Hero* original = hero;
+        delete this;
+        return original;
+    }
+};
+
+class JumpingShoesDecorator : public Decorator {
+public:
+    JumpingShoesDecorator(Hero* h) : Decorator(h) {}
+    void run() override {
+        hero->run();
+        cout << "Hero is jumping high with jumping shoes!\n";
+    }
+    Hero* removeDecorator() override {
+        Hero* original = hero;
+        delete this;
+        return original;
+    }
+};
+
+int main() {
+    Hero* hero = new BasicHero();
+    hero = new SkateboardDecorator(hero);
+    hero = new JumpingShoesDecorator(hero);
+
+    cout << "--- Current State ---\n";
+    hero->run();
+
+    hero = dynamic_cast<Decorator*>(hero)->removeDecorator();
+    cout << "--- After Removing JumpingShoesDecorator ---\n";
+    hero->run();
+
+    hero = dynamic_cast<Decorator*>(hero)->removeDecorator();
+    cout << "--- After Removing SkateboardDecorator ---\n";
+    hero->run();
+
+    delete hero;
+    return 0;
+}
